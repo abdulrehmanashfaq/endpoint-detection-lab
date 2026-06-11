@@ -21,3 +21,18 @@ This phase establishes the central log aggregation, indexing, and visualization 
   sudo apt update && sudo apt upgrade -y
   curl -sO [https://packages.wazuh.com/4.x/wazuh-install.sh](https://packages.wazuh.com/4.x/wazuh-install.sh)
   sudo bash wazuh-install.sh -a
+### Web Console Login & Verification
+
+After waiting for a while when installing is completed, make sure to save the credentials.
+
+#### Step-by-Step Verification:
+
+1. **Save Credentials:** Locate the administrative username and unique password displayed at the bottom of the finished terminal installation and save them securely.
+
+2. **Access the Interface:** Open your web browser and type the following address into the URL bar:
+   ```text
+   [https://127.0.0.1](https://127.0.0.1)
+   
+   ![Wazuh Active Agents Overview Screen](/images/image2.png)
+
+   Now enter your credentials.
