@@ -47,3 +47,20 @@ Check if is running
 Get-Service wazuhsvc
 ```
 ![Command](/images/image4.png)
+Now we can look there is an active agent on wazuh server that is our windows machine
+![Command](/images/image5.png)
+Remeber to setup the sysmon on the windows machine. I already downloaded and isntalled on it.
+You can go to this page to understand how to setup sysmon [Sysmon setup on wazuh](https://wazuh.com/blog/using-wazuh-to-monitor-sysmon-events/)
+
+## 4. Phase 3 : Generate a Loud Telemetry Event on Windows
+
+Now we need to verify that our sysmon actully sends the logs or event over the wire
+so are going to simple command.
+```bash
+net user test test /add
+```
+On our windows terminal we will run this command as administrator.
+Event id would be 4720  
+Now we head to our discover tab on the wazuh server and type test in the search field
+![Command](/images/image6.png)  
+Now you can see our logs are piping in to our wazuh sever.
