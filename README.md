@@ -4,9 +4,9 @@
 This project demonstrates the end-to-end engineering of a localized Security Operations Center (SOC) log pipeline and Endpoint Detection and Response (EDR) testing environment. The objective is to establish an isolated platform for emulating modern adversary tactics, engineering custom behavioral detection logic, and analyzing granular operating system telemetry without relying on cloud resources or traditional Active Directory infrastructure.
 
 ### Architectural Blueprint
-- **Security Operations Console (Laptop 2):** Wazuh SIEM Manager (Distributed Single-Node Deployment running on Linux)
-- **Target Workstation (Laptop 1):** Windows 10/11 Endpoint Virtual Machine monitored via Microsoft Sysmon and Wazuh Agent
-- **Adversary Node (Laptop 1):** Kali Linux Virtual Machine / Local Malicious Execution Context
+- **Security Operations Console (Laptop 1):** Wazuh SIEM Manager (Distributed Single-Node Deployment running on Linux)
+- **Target Workstation (Laptop 2):** Windows 10/11 Endpoint Virtual Machine monitored via Microsoft Sysmon and Wazuh Agent
+- **Adversary Node (Laptop 2):** Kali Linux Virtual Machine / Local Malicious Execution Context
 
 ---
 
@@ -14,25 +14,36 @@ This project demonstrates the end-to-end engineering of a localized Security Ope
 This phase establishes the central log aggregation, indexing, and visualization cluster using the open-source Wazuh SIEM platform.
 
 ### Deployment Log
-- **Host Operating System:** [Kali Linux (main)]
+- **Host Operating System:** Kali Linux (main)
 - **Deployment Method:** Wazuh Automated All-in-One Installation Assistant
 - **Commands Executed:**
 ```bash
-  sudo apt update && sudo apt upgrade -y
-  curl -sO [https://packages.wazuh.com/4.x/wazuh-install.sh](https://packages.wazuh.com/4.x/wazuh-install.sh)
-  sudo bash wazuh-install.sh -a
-### Web Console Login & Verification
+sudo apt update && sudo apt upgrade -y
+curl -sO [https://packages.wazuh.com/4.x/wazuh-install.sh](https://packages.wazuh.com/4.x/wazuh-install.sh)
+sudo bash wazuh-install.sh -a
+```
+Wait for a while.When installtion is completed.Go to your browser and open [https://127.0.0.1](https://127.0.01)
+![Click Continue](/images/image1.png)
+Click on accept (the risk and continue)
+![Credentials](/images/image2.png)
+Add your credentails that was given after the installation.
+![Setup](/images/image3.png)
+Now we have successfully setup our wazuh on our Kali(laptop 1).
 
-After waiting for a while when installing is completed, make sure to save the credentials.
+## 3. Phase 2 : Setting up Windows Machine
 
-#### Step-by-Step Verification:
+On it we need to install the wazuh agent for integrating windows with our wazuh server
 
-1. **Save Credentials:** Locate the administrative username and unique password displayed at the bottom of the finished terminal installation and save them securely.
-
-2. **Access the Interface:** Open your web browser and type the following address into the URL bar:
-   ```text
-   [https://127.0.0.1](https://127.0.0.1)
-   
-   ![Wazuh Active Agents Overview Screen](/images/image2.png)
-
-   Now enter your credentials.
+```Powershell
+Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.14.5-1.msi -OutFile $env:tmp\wazuh-agent.msi; msiexec.exe /i $env:tmp\wazuh-agent.msi /q WAZUH_MANAGER="YOUR_KALI_IP"
+```
+Remeber to replace your ip in this command
+Now start your wazuh service on windows 
+```Powershell 
+Start-Service wazuhsvc
+```
+Check if is running
+```Powershell 
+Get-Service wazuhsvc
+```
+![Command](/images/image4.png)
