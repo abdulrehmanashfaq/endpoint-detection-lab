@@ -1,4 +1,4 @@
-# Local Endpoint Detection Engineering & Incident Response Lab
+# Local Endpoint Detection Engineering
 
 ## 1. Executive Summary & System Architecture
 This project demonstrates the end-to-end engineering of a localized Security Operations Center (SOC) log pipeline and Endpoint Detection and Response (EDR) testing environment. The objective is to establish an isolated platform for emulating modern adversary tactics, engineering custom behavioral detection logic, and analyzing granular operating system telemetry without relying on cloud resources or traditional Active Directory infrastructure.
