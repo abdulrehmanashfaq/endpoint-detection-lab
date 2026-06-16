@@ -196,3 +196,22 @@ wevtutil.exe cl Application
 wevtutil.exe cl Security
 ```
 Remeber we have to do it on the privilaged shell that we gained.
+
+## Phase 5 Dashboard
+```bash
+data.win.system.eventID: "1102" OR data.win.system.eventID: "104"
+```
+Write this query in search box and than save it by clicking on save option on top and named it as Windows-Log-Clearing
+Now paste this query 
+```bash
+data.win.eventdata.commandLine: *ElevateTask* OR data.win.eventdata.commandLine: *OneDriveUpdate*
+```
+And save it as Windows-Persistence-Detected  
+Now go to visiualize tab.create visiualization and select metric and select wazuh-alerts-* as your index pattern.  
+In the configuration panel.  
+* Set the metric aggregation to count 
+* Set the filter to Windows-Log-Clearing
+and save it as log evasion events.  
+Now we go to dashboard and create two dashboard and click on metrics with the two visilization we just created.  
+![dashboard](/images/image12.png)  
+You can create more dashboard like failed and successfull ssh logon etc.
